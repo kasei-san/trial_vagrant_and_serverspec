@@ -78,6 +78,42 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   #   puppet.manifest_file  = "site.pp"
   # end
 
+  config.vm.provision :shell, :inline => <<-EOT
+    echo "encode setting"
+    # refs : http://d.hatena.ne.jp/tkrd/20120828/1346123699
+    echo "export LC_ALL=en_US.UTF-8" >> ~/.bashrc
+
+    echo "install wget"
+    sudo yum -y install wget
+
+    echo "install openssl"
+    wget http://www.openssl.org/source/openssl-1.0.1f.tar.gz
+    tar xzf ./openssl-1.0.1f.tar.gz
+    cd openssl-1.0.1f
+    ./config --prefix=/usr/local/openssl shared
+    make
+    sudo make install
+    cd
+
+    echo "install zlib"
+    wget http://zlib.net/zlib-1.2.8.tar.gz
+    tar xzf ./zlib-1.2.8.tar.gz
+    cd zlib-1.2.8
+    ./configure
+    make
+    sudo make install
+    cd
+
+    echo "install ruby"
+    wget http://cache.ruby-lang.org/pub/ruby/2.1/ruby-2.1.1.tar.gz
+    tar xzf ruby-2.1.1.tar.gz
+    cd ruby-2.1.1
+    ./configure --with-opt-dir=/usr/local/openssl --enable-shared 
+    make
+    sudo make install
+    cd
+  EOT
+
   # Enable provisioning with chef solo, specifying a cookbooks path, roles
   # path, and data_bags path (all relative to this Vagrantfile), and adding
   # some recipes and/or roles.
